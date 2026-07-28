@@ -6,7 +6,6 @@ const endpoints = {
   createProfile: '/moodbudsv1/profilecreation',
   signin: '/moodbudsv1/signin',
 }
-
 async function request(path, options = {}) {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     credentials: 'include',
