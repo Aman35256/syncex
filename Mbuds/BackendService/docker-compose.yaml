@@ -1,0 +1,28 @@
+services:
+  app:
+    build: .
+    container_name: moodbuds
+    ports:
+      - "80:8088"
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      PORT: 8088
+      REDIS_URL: redis://127.0.0.2:6379
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: moodbudsv1-redis
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+
+volumes:
+  redis-data:

@@ -10,6 +10,7 @@ const multer = require('multer');
 const bodyParser = require('body-parser');
 const ConnectMongo = require('connect-mongo');
 const authRoutes = require('./routes/authServiceroutes');
+const userRoutes=require('./routes/userServiceRoutes');
 const MongoStore = ConnectMongo.default || ConnectMongo.MongoStore || ConnectMongo;
 const imagesDir = path.join(__dirname, 'images');
 
@@ -80,6 +81,7 @@ app.get('/', (req, res, next) => {
     })
 })
 app.use(authRoutes);
+app.use(userRoutes);
 app.use((error, req, res, next) => {
     console.error(error);
     if (error instanceof multer.MulterError) {
@@ -95,8 +97,7 @@ app.use((error, req, res, next) => {
 const PORT = process.env.PORT || 8080;
 ConnectDB.then(() => {
     server.listen(PORT, () => {
-        console.log(`Live at http://localhost :${PORT}`);
-
+        console.log(`Live at http://localhost:${PORT}`);
     })
 }).catch((error) => {
     console.error(error);

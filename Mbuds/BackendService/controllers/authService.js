@@ -8,13 +8,9 @@ const Redis = require('ioredis')
 const twilio = require('twilio')
 const User = require('../models/UserModel')
 
-const redis = new Redis(process.env.REDIS_URL || 'redis://127.0.0.1:6379', {
-    lazyConnect: true,
-    maxRetriesPerRequest: 2
-})
-
+const redis = new Redis(process.env.REDIS_URL ||'redis://127.0.0.2:6379');
 redis.on('error', (error) => {
-    console.error('Redis error:', error.message)
+    console.error('Redis error:', error);
 })
 
 async function ensureRedis() {
@@ -113,7 +109,7 @@ exports.postmoodbudssignup = async (req, res, next) => {
             phone: phonenumber,
             savedOtp: hashedOtp,
             attemptsleft: '3'
-        })
+      })
         await redis.expire(token, 600)
 
         try {
@@ -190,7 +186,7 @@ exports.postverifyotp = async (req, res, next) => {
 
 exports.getProfileCreation = (req, res) => {
     if (!req.session.pendingProfile) {
-        return apiError(res, 401, 'Verify your contact details before creating a profile')
+        return apiError(res, 401, 'Verify your contact details before creating a profile')  
     }
     return res.status(200).json({ success: true, message: 'Profile creation endpoint is ready' })
 }
@@ -302,8 +298,7 @@ exports.postmoodBudsSignin = async (req, res, next) => {
                         name: user.userName,
                         nickname: user.userNickName,
                         email: user.userEmail,
-                        image: user.userImage
-                    }
+                     }
                 })
             })
         })
@@ -335,7 +330,7 @@ exports.verifyJwt = (req, res, next) => {
 }
 
 exports.isAuthenticated = (req, res, next) => {
-    if (req.session?.isLoggedIn && req.session.role === 'user') {
+    if (req.session && req.session?.isLoggedIn && req.session.role === 'user') {
         return next()
     }
     return apiError(res, 401, 'Please sign in to continue')

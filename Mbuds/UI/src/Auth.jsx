@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import {useNavigate} from "react-router-dom";
 import {
   ArrowLeft,
   ArrowRight,
@@ -14,6 +15,7 @@ import {
   Phone,
   ShieldCheck,
   Sparkles,
+  Star,
   UserRound,
 } from "lucide-react";
 import { authService } from "./authService";
@@ -23,6 +25,14 @@ const emptySignup = {
   phonenumber: "",
   otpMethod: "Email",
 };
+//all the forms and logic for auth service will lie here 
+const moods = [
+  { id: "soft", emoji: "🌤️", label: "Soft", message: "You don’t need to rush this moment." },
+  { id: "bright", emoji: "✨", label: "Bright", message: "Hold onto that spark. It looks good on you." },
+  { id: "heavy", emoji: "🌧️", label: "Heavy", message: "You made it here. That is enough for now." },
+  { id: "restless", emoji: "🌊", label: "Restless", message: "Let the feeling move. You can stay still." },
+];
+
 function App() {
   const [mode, setMode] = useState("signup");
   const [step, setStep] = useState(1);
@@ -39,8 +49,10 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [notice, setNotice] = useState(null);
   const [resendIn, setResendIn] = useState(30);
+  const [selectedMood, setSelectedMood] = useState(moods[0]);
   const otpRefs = useRef([]);
-
+  const navigate=useNavigate();
+  
   useEffect(() => {
     if (step !== 2 || resendIn <= 0) return;
     const timer = setInterval(() => setResendIn((value) => value - 1), 1000);
@@ -125,6 +137,7 @@ function App() {
     run(
       () => authService.signin(signin),
       () => {
+        navigate("/dashboard");
         setNotice({
           type: "success",
           text: "Welcome back — taking you to your space…",
@@ -144,28 +157,58 @@ function App() {
     setStep(1);
     setNotice(null);
   };
-
   return (
     <main className="page-shell">
-      <section className="story-panel">
+      <section className={`story-panel mood-${selectedMood.id}`}>
         <div className="brand">
           <span className="brand-mark">
             <MessageCircleHeart size={25} strokeWidth={2.1} />
           </span>
           <span>MoodBuds</span>
+          <span className="brand-pill">Your private space</span>
         </div>
-
         <div className="story-copy">
           <span className="eyebrow">
             <Sparkles size={15} /> Your feelings belong here
           </span>
           <h1>
-            A softer place to be <em>yourself.</em>
+            Feel everything.<br />
+            <em>Carry it lighter.</em>
           </h1>
           <p>
             Check in with your emotions, grow at your own pace, and feel a
             little less alone—one honest moment at a time.
           </p>
+          <div className="instant-checkin">
+            <div className="checkin-label">
+              <span>How does right now feel?</span>
+              <small>No right answer. Just tap.</small>
+            </div>
+            <div className="mood-picker" role="group" aria-label="Choose your current mood">
+              {moods.map((mood) => (
+                <button
+                  type="button"
+                  key={mood.id}
+                  className={selectedMood.id === mood.id ? "selected" : ""}
+                  onClick={() => setSelectedMood(mood)}
+                  aria-pressed={selectedMood.id === mood.id}
+                  aria-label={mood.label}
+                >
+                  <span>{mood.emoji}</span>
+                  <small>{mood.label}</small>
+                </button>
+              ))}
+            </div>
+            <p className="mood-response" aria-live="polite">
+              <Sparkles size={14} />
+              {selectedMood.message}
+            </p>
+          </div>
+          <div className="feature-row" aria-label="MoodBuds benefits">
+            <span><Check size={14} /> 30-second check-ins</span>
+            <span><Check size={14} /> Private by default</span>
+            <span><Check size={14} /> Made for real life</span>
+          </div>
           <div className="quote-card">
             <div className="avatar-stack">
               <span className="mini-avatar coral">A</span>
@@ -174,16 +217,16 @@ function App() {
             </div>
             <div>
               <strong>12,000+ gentle check-ins</strong>
-              <span>shared by our growing community</span>
+              <span><Star size={10} fill="currentColor" /> Loved by our growing community</span>
             </div>
           </div>
         </div>
 
         <div className="floating-card mood-card">
-          <span className="mood-icon">☀️</span>
+          <span className="mood-icon">{selectedMood.emoji}</span>
           <div>
-            <small>Today feels</small>
-            <strong>A little lighter</strong>
+            <small>Right now feels</small>
+            <strong>{selectedMood.label}</strong>
           </div>
         </div>
         <div className="floating-card safety-card">
@@ -206,6 +249,26 @@ function App() {
             <MessageCircleHeart size={22} />
           </span>
           MoodBuds
+        </div>
+        <div className="mobile-checkin">
+          <div>
+            <strong>How are you, really?</strong>
+            <span>{selectedMood.message}</span>
+          </div>
+          <div className="mobile-moods" role="group" aria-label="Choose your current mood">
+            {moods.map((mood) => (
+              <button
+                type="button"
+                key={mood.id}
+                className={selectedMood.id === mood.id ? "selected" : ""}
+                onClick={() => setSelectedMood(mood)}
+                aria-label={mood.label}
+                aria-pressed={selectedMood.id === mood.id}
+              >
+                {mood.emoji}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="auth-card">
